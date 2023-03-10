@@ -1,4 +1,5 @@
 from settings import *
+from tetris import Tetris
 import sys
 
 class App:
@@ -7,12 +8,15 @@ class App:
         pg.display.set_caption("Tetris - PDSA")
         self.screen = pg.display.set_mode(FIELD_RES)    #Inicializa la ventana o pantalla a mostrar
         self.clock = pg.time.Clock()    # Crea un objeto que ayuda a llevar el tiempo
+        self.tetris = Tetris(self)
     
     def update(self):
+        self.tetris.update()
         self.clock.tick(FPS) # Actualiza el objeto "clock"
 
     def draw(self):
         self.screen.fill(color=FIELD_COLOR)
+        self.tetris.draw()
         pg.display.flip() # Actualiza todo el contenido mostrado en pantalla
 
     def check_events(self):
