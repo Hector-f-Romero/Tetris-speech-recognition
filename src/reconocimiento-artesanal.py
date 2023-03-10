@@ -1,9 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import librosa;
+import librosa
 import librosa.display
 from pathlib import Path
 from scipy import signal
+from IPython.display import display,Audio
+from scipy.io.wavfile import write,read
 
 # Frecuencia de muestreo
 fs = 44100
@@ -24,8 +26,10 @@ librosa.display.waveshow(y,sr=fs);
 plt.figure(figsize=(14, 5))
 Y = librosa.stft(y)
 Xdb = librosa.amplitude_to_db(abs(Y))
-librosa.display.specshow(Xdb, sr=sr, x_axis='time', y_axis='hz',)
+hola = librosa.display.specshow(Xdb, sr=sr, x_axis='time', y_axis='hz',)
 plt.colorbar()
+print("PLOT")
+print(hola)
 
 # ? Se procede a remover los silencios
 audio_trimmed,_ = librosa.effects.trim(y, top_db= 20)
@@ -59,3 +63,24 @@ yf1 = filtro_pasa_alta(y, fs)
 librosa.display.waveshow(y,sr=fs, x_axis='time');
 librosa.display.waveshow(yf1,sr=fs, x_axis='time');
 plt.show()
+
+# sos = signal.butter(2, [3500,900],analog=False,btype="bandpass",output="sos");
+# y3 =  signal.sosfil(sos,data)
+
+lowcut = 3000
+highcut = 4500
+
+def butter_bandpass(lowcut, highcut, fs, order=5):
+    return signal.butter(order, [lowcut, highcut], fs=fs, btype='band')
+
+def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
+    b, a = butter_bandpass(lowcut, highcut, fs, order=order)
+    y = signal.lfilter(b, a, data)
+    return y
+
+yAudioFiltrado = butter_bandpass_filter(y, lowcut, highcut, fs, order=6)
+print("------------------------")
+print(y)
+print(yAudioFiltrado)
+# Audio(yAudioFiltrado,rate=fs)
+write("aidua.wav", fs,yAudioFiltrado)
