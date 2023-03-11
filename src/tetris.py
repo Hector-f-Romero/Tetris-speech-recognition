@@ -10,6 +10,12 @@ class Tetris:
         self.sprite_group = pg.sprite.Group()
         self.tetromino = Tetromino(self)
 
+    def control(self,pressed_key):
+        if pressed_key == pg.K_LEFT:
+            self.tetromino.move(direction="left")
+        elif pressed_key == pg.K_RIGHT:
+            self.tetromino.move(direction="right")
+
     # Dibuja la cuadrícula en pantalla con base en los ajustes del archivo "settings"
     def draw_grid(self):
         for x in range(FIELD_W):
@@ -17,7 +23,8 @@ class Tetris:
                 pg.draw.rect(self.app.screen,"black",(x*TITLE_SIZE,y*TITLE_SIZE,TITLE_SIZE,TITLE_SIZE),1)
     
     def update(self):
-        self.tetromino.update()
+        if self.app.anim_trigger:
+            self.tetromino.update()
         self.sprite_group.update()
 
     def draw(self):
