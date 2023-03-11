@@ -31,3 +31,4 @@ INIT_POS_OFFSET = vec(FIELD_W // 2 -1,0)
 MOVE_DIRECTIONS = {"left":vec(-1,0),'right': vec(1, 0), 'down': vec(0, 1)}
 
 ANIM_TIME_INTERVAL = 150 # Milisegundos
+FAST_ANIM_TIME_INTERVAL = 15 # Milisegundos

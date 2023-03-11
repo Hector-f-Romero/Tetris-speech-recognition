@@ -10,6 +10,7 @@ class Tetris:
         # En este group, estarán todas las texturas de los Tetrominos y bloques que aparecerán en pantalla
         self.sprite_group = pg.sprite.Group()
         self.tetromino = Tetromino(self)
+        self.speed_up = False
 
     # Para el sistema de colisiones entre bloques, es necesario mapear la cuadricula y conocer qué posicones están libres.
     def get_field_array(self):
@@ -29,6 +30,8 @@ class Tetris:
         elif pressed_key == pg.K_UP:
             # Si presiona la tecla hacia arriba del teclado, el tetromino rota hacia la ¿izquierda?
             self.tetromino.rotate()
+        elif pressed_key == pg.K_DOWN:
+            self.speed_up = True
 
     # Dibuja la cuadrícula en pantalla con base en los ajustes del archivo "settings"
     def draw_grid(self):
@@ -39,6 +42,7 @@ class Tetris:
     # Este método verifica si el tetromino ha tocado el suelo o no
     def check_tetromino_landing(self):
         if self.tetromino.landing:
+            self.speed_up = False
             # Coloca la posición del tetromino en el arreglo que contiene la información de la cuadrícula.
             self.put_tetromino_blocks_in_array()
             # SI el tetromino toca el suelo, se generará una nueva instancia de Tetromino
@@ -64,7 +68,8 @@ class Tetris:
                     self.field_array[row][x] = 0
 
     def update(self):
-        if self.app.anim_trigger:
+        trigger = [self.app.anim_trigger,self.app.fast_anim_trigger][self.speed_up]
+        if trigger:
             self.check_full_lines()
             self.tetromino.update()
             self.check_tetromino_landing()
