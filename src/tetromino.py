@@ -6,12 +6,13 @@ class Block(pg.sprite.Sprite):
     def __init__(self,tetromino,pos):
         self.tetromino = tetromino
         self.pos = vec(pos) + INIT_POS_OFFSET
+        self.alive = True
 
         # Para dibujar el bloque en pantalla, necesitamos las coordenadas del Tetromino padre y su atributo de Sprite_Group
         super().__init__(tetromino.tetris.sprite_group)
         # El método Surface permite la representación de imágenes en Pygame. Sus dos primeros parámetros son las medidas de la imagen.
         self.image = pg.Surface([TITLE_SIZE,TITLE_SIZE])
-        self.image.fill("orange")
+        pg.draw.rect(self.image,"orange",(1,1,TITLE_SIZE-2,TITLE_SIZE-2),border_radius=4)
         # Dibujamos el rectángulo en la esquina superior izquierda para que el rectángulo se ubique de manera correcta en la cuadrícula.
         self.rect = self.image.get_rect()
 
@@ -24,9 +25,15 @@ class Block(pg.sprite.Sprite):
         # Se mueve la posición del bloque y se multiplica por el tamaño fijado.
         self.rect.topleft = self.pos *TITLE_SIZE
 
+    def is_alive(self):
+        if not self.alive:
+            self.kill() # Remueve el sprite del grupo
+
     def update(self):
         # Pintamos en pantalla la posición del bloque cada segundo
         self.set_rect_pos()
+        # Verificamos si el bloque está vivo
+        self.is_alive()
 
     def is_collide(self, pos):
         # Obtenemos los valores enteros de la posición actual del bloque

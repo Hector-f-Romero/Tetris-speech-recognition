@@ -44,8 +44,28 @@ class Tetris:
             # SI el tetromino toca el suelo, se generará una nueva instancia de Tetromino
             self.tetromino = Tetromino(self)
 
+    def check_full_lines(self):
+        row = FIELD_H-1
+        for y in range(FIELD_H-1,-1,-1):
+            for x in range(FIELD_W):
+                self.field_array[row][x] = self.field_array[y][x]
+
+                if(self.field_array[y][x]):
+                    self.field_array[row][x].pos = vec(x,y)
+
+            # Se verifica el número de bloques en la línea actual
+            if sum(map(bool,self.field_array[y])) < FIELD_W:
+                # Si no está completa la fila, reducimos el valor de la variable row en 1
+                row -=1
+            else:
+                for x in range(FIELD_W):
+                    self.field_array[row][x].alive = False
+                    # Eliminamos todos los valores de la fila colocando 0
+                    self.field_array[row][x] = 0
+
     def update(self):
         if self.app.anim_trigger:
+            self.check_full_lines()
             self.tetromino.update()
             self.check_tetromino_landing()
         self.sprite_group.update()
