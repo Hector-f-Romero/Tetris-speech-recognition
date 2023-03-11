@@ -20,7 +20,18 @@ class Block(pg.sprite.Sprite):
         self.rect.topleft = self.pos *TITLE_SIZE
 
     def update(self):
+        # Pintamos en pantalla la posición del bloque cada segundo
         self.set_rect_pos()
+
+    def is_collide(self, pos):
+        # Obtenemos los valores enteros de la posición actual del bloque
+        x,y = int(pos.x),int(pos.y)
+
+        # Si el bloque se encuentra dentro de los límites de la cuadrícula, no ha colisonado.
+        # Y si el bloque no se encuentra ubicado en una posición ocupada anteriormente por otro bloque, aún se puede mover y retorna true
+        if 0<= x < FIELD_W and y < FIELD_H and (y<0 or not self.tetromino.tetris.field_array[y][x]):
+            return False
+        return True
 
 class Tetromino:
     def __init__(self,tetris):
@@ -29,13 +40,27 @@ class Tetromino:
         self.shape = random.choice(list(TETROMINOES.keys()))
         # Los bloques se crearán a partir de las posiciones dadas en el archivo settings y se construirán gracias a un ciclo for
         self.blocks = [Block(self,pos) for pos in TETROMINOES[self.shape]]
+        self.landing = False # Esta propiedad indicará cuándo ha colisionado el tetromino con el suelo
+    
+    def is_collide(self, block_position):
+        return any(map(Block.is_collide,self.blocks,block_position))
     
     def move(self,direction):
         # Busca el valor de la key que pasamos como parámetro en el diccionario
-        move_increment = MOVE_DIRECTIONS[direction]
-        for block in self.blocks:
-            # Para cada uno de los bloques del tetromino se suma el vector perteneciente a la acción encontrada en el diccionario.
-            block.pos +=move_increment
+        move_direction = MOVE_DIRECTIONS[direction]
+
+        # Guardamos en una variable la siguiente posición de los bloques
+        new_block_positions = [block.pos + move_direction for block in self.blocks]
+        # Verificamos si en esa nueva posición existe una colisión
+        is_collide = self.is_collide(new_block_positions)
+
+        # Si no existe colisión, cambiará la posición actual de los bloques.
+        if not is_collide:
+            for block in self.blocks:
+                # Para cada uno de los bloques del tetromino se suma el vector perteneciente a la acción encontrada en el diccionario.
+                block.pos +=move_direction
+        elif direction == "down":
+            self.landing = True
 
     def update(self):
         self.move(direction="down")

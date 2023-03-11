@@ -27,6 +27,8 @@ class App:
         self.tetris.draw()
         pg.display.flip() # Actualiza todo el contenido mostrado en pantalla
 
+
+
     def check_events(self):
         # Esta propiedad va ligada al movimiento de las fichas. Permite que el movimiento de estas no dependa de los fps
         self.anim_trigger = False
