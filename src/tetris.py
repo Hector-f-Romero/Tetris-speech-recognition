@@ -26,6 +26,9 @@ class Tetris:
             self.tetromino.move(direction="left")
         elif pressed_key == pg.K_RIGHT:
             self.tetromino.move(direction="right")
+        elif pressed_key == pg.K_UP:
+            # Si presiona la tecla hacia arriba del teclado, el tetromino rota hacia la ¿izquierda?
+            self.tetromino.rotate()
 
     # Dibuja la cuadrícula en pantalla con base en los ajustes del archivo "settings"
     def draw_grid(self):

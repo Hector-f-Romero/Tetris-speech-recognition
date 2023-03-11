@@ -15,6 +15,11 @@ class Block(pg.sprite.Sprite):
         # Dibujamos el rectángulo en la esquina superior izquierda para que el rectángulo se ubique de manera correcta en la cuadrícula.
         self.rect = self.image.get_rect()
 
+    def rotate(self, pivot_pos):
+        translated = self.pos - pivot_pos
+        rotated = translated.rotate(90)
+        return rotated + pivot_pos
+
     def set_rect_pos(self):
         # Se mueve la posición del bloque y se multiplica por el tamaño fijado.
         self.rect.topleft = self.pos *TITLE_SIZE
@@ -61,6 +66,16 @@ class Tetromino:
                 block.pos +=move_direction
         elif direction == "down":
             self.landing = True
+
+    def rotate(self):
+        pivot_pos = self.blocks[0].pos
+        # Rota cada uno de los bloques del tetromino
+        new_block_positions = [block.rotate(pivot_pos) for block in self.blocks]
+
+        if not self.is_collide(new_block_positions):
+            for i,block in enumerate(self.blocks):
+                block.pos = new_block_positions[i]
+
 
     def update(self):
         self.move(direction="down")
