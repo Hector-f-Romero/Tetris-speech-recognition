@@ -19,6 +19,13 @@ class Block(pg.sprite.Sprite):
         # Dibujamos el rectángulo en la esquina superior izquierda para que el rectángulo se ubique de manera correcta en la cuadrícula.
         self.rect = self.image.get_rect()
 
+        # Configuraciones del efecto especial al completar una línea
+        self.sfx_image =self.image.copy()
+        self.sfx_image.set_alpha(110)
+        self.sfx_speed = random.uniform(0.2,0.6)
+        self.sfx_cycles = random.randrange(6,8)
+        self.cycle_counter = 0
+
     def rotate(self, pivot_pos):
         translated = self.pos - pivot_pos
         rotated = translated.rotate(90)
@@ -33,7 +40,10 @@ class Block(pg.sprite.Sprite):
 
     def is_alive(self):
         if not self.alive:
-            self.kill() # Remueve el sprite del grupo
+            if not self.sfx_end_time():
+                self.sfx_run()
+            else:
+                self.kill() # Remueve el sprite del grupo
 
     def update(self):
         # Pintamos en pantalla la posición del bloque cada segundo
@@ -50,6 +60,18 @@ class Block(pg.sprite.Sprite):
         if 0<= x < FIELD_W and y < FIELD_H and (y<0 or not self.tetromino.tetris.field_array[y][x]):
             return False
         return True
+    
+    def sfx_run(self):
+        self.image = self.sfx_image
+        self.pos.y -= self.sfx_speed
+        self.image = pg.transform.rotate(self.image,pg.time.get_ticks()*self.sfx_speed)
+
+    def sfx_end_time(self):
+         if self.tetromino.tetris.app.anim_trigger:
+            self.cycle_counter += 1
+            if self.cycle_counter > self.sfx_cycles:
+                self.cycle_counter = 0
+                return True
 
 class Tetromino:
     def __init__(self,tetris,current=True):
