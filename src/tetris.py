@@ -1,5 +1,7 @@
 from settings import *
 from tetromino import Tetromino
+import pygame.freetype as ft
+import pathlib
 import math
 
 # La clase Tetris llevará el control de los elemtentos Tetromino y la visualización en pantalla de la grilla
@@ -11,6 +13,15 @@ class Tetris:
         self.sprite_group = pg.sprite.Group()
         self.tetromino = Tetromino(self)
         self.speed_up = False
+        # Crearemos el tetromino siguiente para poder visualizarlo en la pantalla antes de que salga
+        self.next_tetromino = Tetromino(self,current=False)
+        self.score =0
+        self.full_lines = 0
+        self.points_per_lines = {0:0,1:200,2:00,3:700,4:1500}
+
+    def get_score(self):
+        self.score += self.points_per_lines[self.full_lines]
+        self.full_lines = 0 
 
     # Para el sistema de colisiones entre bloques, es necesario mapear la cuadricula y conocer qué posicones están libres.
     def get_field_array(self):
@@ -42,11 +53,18 @@ class Tetris:
     # Este método verifica si el tetromino ha tocado el suelo o no
     def check_tetromino_landing(self):
         if self.tetromino.landing:
-            self.speed_up = False
-            # Coloca la posición del tetromino en el arreglo que contiene la información de la cuadrícula.
-            self.put_tetromino_blocks_in_array()
-            # SI el tetromino toca el suelo, se generará una nueva instancia de Tetromino
-            self.tetromino = Tetromino(self)
+            # Si el método de is_game_over retorna True, se inicializa nuevamente el juego reiniciando la app.
+            if self.is_game_over():
+                self.__init__(self.app)
+            else:
+                self.speed_up = False
+                # Coloca la posición del tetromino en el arreglo que contiene la información de la cuadrícula.
+                self.put_tetromino_blocks_in_array()
+                self.next_tetromino.current = True
+                # Asignamos el valor del tetromino siguiente al actual y creamos una nuevo con el atributo de current en False
+                self.tetromino = self.next_tetromino
+                # SI el tetromino toca el suelo, se generará una nueva instancia de Tetromino
+                self.next_tetromino = Tetromino(self,current=False)
 
     def check_full_lines(self):
         row = FIELD_H-1
@@ -67,12 +85,16 @@ class Tetris:
                     # Eliminamos todos los valores de la fila colocando 0
                     self.field_array[row][x] = 0
 
+                # Suma las líneas completas
+                self.full_lines +=1
+
     def update(self):
         trigger = [self.app.anim_trigger,self.app.fast_anim_trigger][self.speed_up]
         if trigger:
             self.check_full_lines()
             self.tetromino.update()
             self.check_tetromino_landing()
+            self.get_score()
         self.sprite_group.update()
 
     def draw(self):
@@ -80,4 +102,24 @@ class Tetris:
        # Dibujará los sprites en la superficie de la pantalla de la aplicación previamente creada.
        self.sprite_group.draw(self.app.screen)
 
- 
+    def is_game_over(self):
+        # Si el tetromino se encuentra en el tope de la pantalla, se pausa el juego y devuelve True
+        if self.tetromino.blocks[0].pos.y == INIT_POS_OFFSET[1]:
+            pg.time.wait(1300)
+            return True
+
+class Text:
+    def __init__(self,app):
+        self.app = app
+        # Obtenemos el path actual del archivo main.py
+        current_path = pathlib.Path(__file__).parent
+        # Guardamos la ruta donde se encuentran los sprites
+        font_path = pathlib.Path(current_path / FONT_PATH)
+        # Cargamos la fuente en la ruta especificada.
+        self.font = ft.Font(font_path)
+
+    def draw(self):
+        self.font.render_to(self.app.screen,(WIN_W*0.607,WIN_H*0.02),text="TETRISFÁN",fgcolor="white",size=TILE_SIZE*1.15,bgcolor="black")
+        self.font.render_to(self.app.screen, (WIN_W * 0.65, WIN_H * 0.22),text='Next', fgcolor='orange',size=TILE_SIZE * 1.4)
+        self.font.render_to(self.app.screen, (WIN_W * 0.64, WIN_H * 0.67),text='Score', fgcolor='orange',size=TILE_SIZE * 1.4)
+        self.font.render_to(self.app.screen, (WIN_W * 0.64, WIN_H * 0.8), text=f'{self.app.tetris.score}', fgcolor='white',size=TILE_SIZE * 1.8)

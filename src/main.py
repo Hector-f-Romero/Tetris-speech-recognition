@@ -1,5 +1,5 @@
 from settings import *
-from tetris import Tetris
+from tetris import Tetris,Text
 import sys
 import pathlib
 
@@ -7,11 +7,12 @@ class App:
     def __init__(self):
         pg.init()
         pg.display.set_caption("Tetris - PDSA")
-        self.screen = pg.display.set_mode(FIELD_RES)    #Inicializa la ventana o pantalla a mostrar
+        self.screen = pg.display.set_mode(WIN_RES)    #Inicializa la ventana o pantalla a mostrar
         self.clock = pg.time.Clock()    # Crea un objeto que ayuda a llevar el tiempo
         self.set_timer()
         self.images = self.load_images()
         self.tetris = Tetris(self)
+        self.text = Text(self)
 
     def load_images(self):
         # Obtenemos el path actual del archivo main.py
@@ -42,8 +43,11 @@ class App:
         self.clock.tick(FPS) # Actualiza el objeto "clock"
 
     def draw(self):
-        self.screen.fill(color=FIELD_COLOR)
+        self.screen.fill(color=BG_COLOR) # Agregamos un color azul a la pantalla
+        self.screen.fill(color=FIELD_COLOR,rect=(0,0,*FIELD_RES)) # Pintamos de gris únicamente las casillas jugables.
         self.tetris.draw()
+        # Dibuja los textos en pantalla
+        self.text.draw()
         pg.display.flip() # Actualiza todo el contenido mostrado en pantalla
 
     

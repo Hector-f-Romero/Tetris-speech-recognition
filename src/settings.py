@@ -7,6 +7,12 @@ TILE_SIZE=30 # Tamaño de las cuadriculas
 FIELD_SIZE =FIELD_W,FIELD_H = 10,20
 FIELD_RES = FIELD_W * TILE_SIZE,FIELD_H*TILE_SIZE;
 
+# Aumentamos el tamaño de la ventana para agregar el sistema de puntos y visualización de la siguiente ficha.
+FIELD_SCALE_W,FIELD_SCALE_H = 1.7,1.0
+WIN_RES = WIN_W,WIN_H = FIELD_RES[0] * FIELD_SCALE_W, FIELD_RES[1] * FIELD_SCALE_H
+BG_COLOR = (24,89,117)
+
+
 # En este diccionario, se almacenan las coordenas de las figuras del tetris. El primer par de coordenadas hace refernecia al bloque de pivote, el cuál será la guía para la construcción de los otros bloques y así formar un tetromino
 TETROMINOES = {
     'T': [(0, 0), (-1, 0), (1, 0), (0, -1)],
@@ -30,3 +36,6 @@ ANIM_TIME_INTERVAL = 150 # Milisegundos
 FAST_ANIM_TIME_INTERVAL = 15 # Milisegundos
 
 SPRITE_DIR_PATH = "assets/sprites"
+FONT_PATH ="assets/font/Montserrat-Bold.ttf"
+
+NEXT_POS_OFFSET = vec(FIELD_W*1.3,FIELD_H*0.45)

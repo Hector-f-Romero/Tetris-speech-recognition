@@ -5,7 +5,7 @@ import random
 class Block(pg.sprite.Sprite):
     def __init__(self,tetromino,pos):
         self.tetromino = tetromino
-
+        self.next_pos = vec(pos) + NEXT_POS_OFFSET
         self.pos = vec(pos) + INIT_POS_OFFSET
         self.alive = True
 
@@ -25,8 +25,11 @@ class Block(pg.sprite.Sprite):
         return rotated + pivot_pos
 
     def set_rect_pos(self):
+        # Posiciona el siguiente tetromino a la derecha del todo y en el segundo arreglo coloca el tetromino que va a caer
+        pos = [self.next_pos,self.pos][self.tetromino.current]
         # Se mueve la posición del bloque y se multiplica por el tamaño fijado.
-        self.rect.topleft = self.pos *TILE_SIZE
+        self.rect.topleft = pos *TILE_SIZE
+
 
     def is_alive(self):
         if not self.alive:
@@ -49,7 +52,7 @@ class Block(pg.sprite.Sprite):
         return True
 
 class Tetromino:
-    def __init__(self,tetris):
+    def __init__(self,tetris,current=True):
         self.tetris =tetris
         # Cargamos una imagen aleatoria para el tetromino que se creará
         self.image = random.choice(tetris.app.images)
@@ -58,6 +61,8 @@ class Tetromino:
         # Los bloques se crearán a partir de las posiciones dadas en el archivo settings y se construirán gracias a un ciclo for
         self.blocks = [Block(self,pos) for pos in TETROMINOES[self.shape]]
         self.landing = False # Esta propiedad indicará cuándo ha colisionado el tetromino con el suelo
+        # Asignamos el valor de true para identificar que es el tetromino actual el que se genera
+        self.current = current
     
     def is_collide(self, block_position):
         return any(map(Block.is_collide,self.blocks,block_position))
