@@ -5,14 +5,17 @@ import random
 class Block(pg.sprite.Sprite):
     def __init__(self,tetromino,pos):
         self.tetromino = tetromino
+
         self.pos = vec(pos) + INIT_POS_OFFSET
         self.alive = True
 
         # Para dibujar el bloque en pantalla, necesitamos las coordenadas del Tetromino padre y su atributo de Sprite_Group
         super().__init__(tetromino.tetris.sprite_group)
+        self.image = tetromino.image
+
         # El método Surface permite la representación de imágenes en Pygame. Sus dos primeros parámetros son las medidas de la imagen.
-        self.image = pg.Surface([TITLE_SIZE,TITLE_SIZE])
-        pg.draw.rect(self.image,"orange",(1,1,TITLE_SIZE-2,TITLE_SIZE-2),border_radius=4)
+        # self.image = pg.Surface([TILE_SIZE,TILE_SIZE])
+        # pg.draw.rect(self.image,"orange",(1,1,TILE_SIZE-2,TILE_SIZE-2),border_radius=4)
         # Dibujamos el rectángulo en la esquina superior izquierda para que el rectángulo se ubique de manera correcta en la cuadrícula.
         self.rect = self.image.get_rect()
 
@@ -23,7 +26,7 @@ class Block(pg.sprite.Sprite):
 
     def set_rect_pos(self):
         # Se mueve la posición del bloque y se multiplica por el tamaño fijado.
-        self.rect.topleft = self.pos *TITLE_SIZE
+        self.rect.topleft = self.pos *TILE_SIZE
 
     def is_alive(self):
         if not self.alive:
@@ -48,6 +51,8 @@ class Block(pg.sprite.Sprite):
 class Tetromino:
     def __init__(self,tetris):
         self.tetris =tetris
+        # Cargamos una imagen aleatoria para el tetromino que se creará
+        self.image = random.choice(tetris.app.images)
         # Se selecciona una forma aleatoria del diccionario creado en settings
         self.shape = random.choice(list(TETROMINOES.keys()))
         # Los bloques se crearán a partir de las posiciones dadas en el archivo settings y se construirán gracias a un ciclo for

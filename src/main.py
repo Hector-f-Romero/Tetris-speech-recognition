@@ -1,6 +1,7 @@
 from settings import *
 from tetris import Tetris
 import sys
+import pathlib
 
 class App:
     def __init__(self):
@@ -9,7 +10,22 @@ class App:
         self.screen = pg.display.set_mode(FIELD_RES)    #Inicializa la ventana o pantalla a mostrar
         self.clock = pg.time.Clock()    # Crea un objeto que ayuda a llevar el tiempo
         self.set_timer()
+        self.images = self.load_images()
         self.tetris = Tetris(self)
+
+    def load_images(self):
+        # Obtenemos el path actual del archivo main.py
+        current_path = pathlib.Path(__file__).parent
+        # Guardamos la ruta donde se encuentran los sprites
+        sprites_ruta = pathlib.Path(current_path / "assets" / "sprites")
+
+        # Recorremos los archivos dentro de la carpeta de sprites y los guardamos en una variable "files"
+        files = [item for item in sprites_ruta.rglob('*.png') if item.is_file()]
+        # Cargamos las imágenes con un canal transparente para que el formato .png se vea con la transparencia que lo caracteria en cada uno de los archivos cargados.
+        images = [pg.image.load(file).convert_alpha() for file in files]
+        # Escalamos los sprites a los tamaños de las casillas
+        images = [pg.transform.scale(image,(TILE_SIZE,TILE_SIZE)) for image in images]
+        return images
 
     # Este método permite que el movimiento de estas no dependa de los fps    
     def set_timer(self):
@@ -30,7 +46,7 @@ class App:
         self.tetris.draw()
         pg.display.flip() # Actualiza todo el contenido mostrado en pantalla
 
-
+    
 
     def check_events(self):
         # Esta propiedad va ligada al movimiento de las fichas. Permite que el movimiento de estas no dependa de los fps

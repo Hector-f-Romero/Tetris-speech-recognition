@@ -3,13 +3,9 @@ import pygame as pg
 FPS= 60
 FIELD_COLOR=(40,39,32)
 
-
-
-
-
-TITLE_SIZE=30 # Tamaño de las cuadriculas
+TILE_SIZE=30 # Tamaño de las cuadriculas
 FIELD_SIZE =FIELD_W,FIELD_H = 10,20
-FIELD_RES = FIELD_W * TITLE_SIZE,FIELD_H*TITLE_SIZE;
+FIELD_RES = FIELD_W * TILE_SIZE,FIELD_H*TILE_SIZE;
 
 # En este diccionario, se almacenan las coordenas de las figuras del tetris. El primer par de coordenadas hace refernecia al bloque de pivote, el cuál será la guía para la construcción de los otros bloques y así formar un tetromino
 TETROMINOES = {
@@ -32,3 +28,5 @@ MOVE_DIRECTIONS = {"left":vec(-1,0),'right': vec(1, 0), 'down': vec(0, 1)}
 
 ANIM_TIME_INTERVAL = 150 # Milisegundos
 FAST_ANIM_TIME_INTERVAL = 15 # Milisegundos
+
+SPRITE_DIR_PATH = "assets/sprites"

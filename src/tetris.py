@@ -37,7 +37,7 @@ class Tetris:
     def draw_grid(self):
         for x in range(FIELD_W):
             for y in range(FIELD_H):
-                pg.draw.rect(self.app.screen,"black",(x*TITLE_SIZE,y*TITLE_SIZE,TITLE_SIZE,TITLE_SIZE),1)
+                pg.draw.rect(self.app.screen,"black",(x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE),1)
 
     # Este método verifica si el tetromino ha tocado el suelo o no
     def check_tetromino_landing(self):
