@@ -3,6 +3,11 @@ from tetris import Tetris,Text
 import sys
 import pathlib
 
+
+from speechRecognition import start_recognizer
+import threading
+from multiprocessing import Process
+
 class App:
     def __init__(self):
         pg.init()
@@ -77,4 +82,12 @@ class App:
 # Evita que se ejecuten partes del código cuando se importan otros módulos en un mismo archivo.
 if __name__ == "__main__":
     app = App()
+    proceso1 = Process(target=start_recognizer)
+    proceso1.start()
     app.run()
+    # h1 = threading.Thread(name="Hilo1",target=app.run)
+    # h1.start()
+   
+    # proceso1.join()
+    # h1.join()
+    # start_recognizer()
