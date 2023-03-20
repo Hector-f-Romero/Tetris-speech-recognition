@@ -17,7 +17,7 @@ class Tetris:
         self.next_tetromino = Tetromino(self,current=False)
         self.score =0
         self.full_lines = 0
-        self.points_per_lines = {0:0,1:200,2:00,3:700,4:1500}
+        self.points_per_lines = {0:0,1:200,2:400,3:700,4:1500}
 
     def get_score(self):
         self.score += self.points_per_lines[self.full_lines]

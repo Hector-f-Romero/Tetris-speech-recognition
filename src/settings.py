@@ -32,7 +32,7 @@ INIT_POS_OFFSET = vec(FIELD_W // 2 -1,0)
 # Gracias al vector2, podemos mover todas las figuras de forma sencilla al sumar los siguientes valores en X y Y
 MOVE_DIRECTIONS = {"left":vec(-1,0),'right': vec(1, 0), 'down': vec(0, 1)}
 
-ANIM_TIME_INTERVAL = 150 # Milisegundos
+ANIM_TIME_INTERVAL = 450 # Milisegundos
 FAST_ANIM_TIME_INTERVAL = 15 # Milisegundos
 
 SPRITE_DIR_PATH = "assets/sprites"
