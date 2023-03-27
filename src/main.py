@@ -3,10 +3,12 @@ from tetris import Tetris,Text
 import sys
 import pathlib
 
-
+# from shared_variable import get_shared_variable
+from accionTomada import VariableCompartida
 from speechRecognition import start_recognizer
-import threading
-from multiprocessing import Process
+from multiprocessing import Process,Pool,Queue,Value
+
+mi_accion = VariableCompartida()
 
 class App:
     def __init__(self):
@@ -18,6 +20,9 @@ class App:
         self.images = self.load_images()
         self.tetris = Tetris(self)
         self.text = Text(self)
+        proceso1 = Process(target=start_recognizer)
+        proceso1.start()
+
 
     def load_images(self):
         # Obtenemos el path actual del archivo main.py
@@ -46,6 +51,7 @@ class App:
     def update(self):
         self.tetris.update()
         self.clock.tick(FPS) # Actualiza el objeto "clock"
+        # print(get_shared_variable())
 
     def draw(self):
         self.screen.fill(color=BG_COLOR) # Agregamos un color azul a la pantalla
@@ -54,8 +60,6 @@ class App:
         # Dibuja los textos en pantalla
         self.text.draw()
         pg.display.flip() # Actualiza todo el contenido mostrado en pantalla
-
-    
 
     def check_events(self):
         # Esta propiedad va ligada al movimiento de las fichas. Permite que el movimiento de estas no dependa de los fps
@@ -72,6 +76,24 @@ class App:
                 self.anim_trigger= True
             elif event.type == self.fast_user_event:
                 self.fast_anim_trigger= True
+        # print(get_shared_variable())
+        # print(mi_accion)
+        # mi_accion.obtener_valor()
+        if(mi_accion.obtener_valor()==4):
+            print("Menos")
+            # print(get_shared_variable())
+            # self.tetris.tetromino.move(direction="left")
+        elif (mi_accion.obtener_valor()==3):
+            print("Mas")
+            # self.tetris.tetromino.move(direction="right")
+        elif (mi_accion.obtener_valor()==0):
+            # print("Empezar en main")
+            print(mi_accion)
+            # print(get_shared_variable())
+            # self.tetris.tetromino.move(direction="right")
+        print(mi_accion.obtener_valor())
+
+        
     def run(self):
         while True:
             self.check_events();
@@ -82,12 +104,12 @@ class App:
 # Evita que se ejecuten partes del código cuando se importan otros módulos en un mismo archivo.
 if __name__ == "__main__":
     app = App()
-    proceso1 = Process(target=start_recognizer)
-    proceso1.start()
+    # proceso1 = Process(target=start_recognizer)
+    # proceso1.start() 
+      
+    # p = Pool(processes=3)
+    # dato = p.map(start_recognizer)
+    # p.close()
+    # print(dato)
     app.run()
-    # h1 = threading.Thread(name="Hilo1",target=app.run)
-    # h1.start()
-   
-    # proceso1.join()
-    # h1.join()
     # start_recognizer()

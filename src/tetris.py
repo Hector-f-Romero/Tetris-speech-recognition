@@ -4,6 +4,8 @@ import pygame.freetype as ft
 import pathlib
 import math
 
+# from shared_variable import set_shared_variable,get_shared_variable
+
 # La clase Tetris llevará el control de los elemtentos Tetromino y la visualización en pantalla de la grilla
 class Tetris:
     def __init__(self,app):
@@ -43,6 +45,8 @@ class Tetris:
             self.tetromino.rotate()
         elif pressed_key == pg.K_DOWN:
             self.speed_up = True
+        # elif pressed_key == pg.K_DOWN:
+        #     self.speed_up = True
 
     # Dibuja la cuadrícula en pantalla con base en los ajustes del archivo "settings"
     def draw_grid(self):
@@ -119,7 +123,7 @@ class Text:
         self.font = ft.Font(font_path)
 
     def draw(self):
-        self.font.render_to(self.app.screen,(WIN_W*0.607,WIN_H*0.02),text="TETRISFÁN",fgcolor="white",size=TILE_SIZE*1.15,bgcolor="black")
-        self.font.render_to(self.app.screen, (WIN_W * 0.65, WIN_H * 0.22),text='Next', fgcolor='orange',size=TILE_SIZE * 1.4)
-        self.font.render_to(self.app.screen, (WIN_W * 0.64, WIN_H * 0.67),text='Score', fgcolor='orange',size=TILE_SIZE * 1.4)
+        self.font.render_to(self.app.screen,(WIN_W*0.487,WIN_H*0.08),text="TETRISFÁN",fgcolor="white",size=TILE_SIZE*1.15,bgcolor="black")
+        self.font.render_to(self.app.screen, (WIN_W * 0.58, WIN_H * 0.35),text='Next', fgcolor='orange',size=TILE_SIZE * 1.4)
+        self.font.render_to(self.app.screen, (WIN_W * 0.55, WIN_H * 0.73),text='Score', fgcolor='orange',size=TILE_SIZE * 1.4)
         self.font.render_to(self.app.screen, (WIN_W * 0.64, WIN_H * 0.8), text=f'{self.app.tetris.score}', fgcolor='white',size=TILE_SIZE * 1.8)
