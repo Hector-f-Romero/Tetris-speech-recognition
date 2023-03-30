@@ -4,7 +4,7 @@ FPS= 60
 FIELD_COLOR=(40,39,32)
 
 TILE_SIZE=30 # Tamaño de las cuadriculas
-FIELD_SIZE =FIELD_W,FIELD_H = 6,27
+FIELD_SIZE =FIELD_W,FIELD_H = 6,25
 FIELD_RES = FIELD_W * TILE_SIZE,FIELD_H*TILE_SIZE;
 
 # Aumentamos el tamaño de la ventana para agregar el sistema de puntos y visualización de la siguiente ficha.
@@ -33,7 +33,7 @@ INIT_POS_OFFSET = vec(FIELD_W // 2 -1,0)
 MOVE_DIRECTIONS = {"left":vec(-1,0),'right': vec(1, 0), 'down': vec(0, 1)}
 
 # ANIM_TIME_INTERVAL = 750 # Milisegundos
-ANIM_TIME_INTERVAL = 950 # Milisegundos
+ANIM_TIME_INTERVAL = 1450 # Milisegundos
 FAST_ANIM_TIME_INTERVAL = 15 # Milisegundos
 
 SPRITE_DIR_PATH = "assets/sprites"
@@ -41,4 +41,4 @@ FONT_PATH ="assets/font/Montserrat-Bold.ttf"
 
 
 
-NEXT_POS_OFFSET = vec(FIELD_W*1.8,FIELD_H*0.45)
+NEXT_POS_OFFSET = vec(FIELD_W*1.6,FIELD_H*0.45)

@@ -8,25 +8,20 @@ import joblib
 import pygame as pg
 import json
 
-# from shared_variable import get_shared_variable
-# from shared_variable import VariableCompartida
-# from speechRecognition import start_recognizer
-from preprocesamiento import entenderAudio
+from preprocesamiento2 import entenderAudio
 from multiprocessing import Process,Pool,Queue,Value
-import queue
-from accionTomada import AccionTomada
 
 # * --------------------------------------------------
 # AJUSTES DEL SPEECH RECOGNITION
 r = sr.Recognizer()
 r.energy_threshold=4000
-m = sr.Microphone(0,sample_rate=44000)
+m = sr.Microphone(0,sample_rate=22050)
 
 # Obtenemos el path actual del archivo main.py
 current_path = pathlib.Path(__file__).parent
 # modelo_ruta = pathlib.Path(current_path / "assets" / "models" / "Model081.joblib")
 # modelo_ruta = pathlib.Path(current_path / "assets" / "models" / "my_random_forest.joblib")
-modelo_ruta = pathlib.Path(current_path / "assets" / "models" / "Model082palabramasperfecta.joblib")
+modelo_ruta = pathlib.Path(current_path / "assets" / "models" / "Model087.joblib")
 
 
 # Se carga el modelo de red neuronal entrenado.
@@ -40,16 +35,12 @@ def start_recognizer2():
         with m as source:
             try:
                 print("Hable")
-                audio = r.listen(source,phrase_time_limit=2,timeout=1.5) #,
+                # r.adjust_for_ambient_noise(source)
+                audio = r.listen(source,phrase_time_limit=2,timeout=4) #,,,
                 palabra_predictor = entenderAudio(audio)
                 predicion, = modelo_entrenado.predict(palabra_predictor)
                 y_prob = modelo_entrenado.predict_proba(palabra_predictor)
-                # accion.setAccion_tomada(predicion)
-                # print(predicion)
-                # print(accion.getAccion_tomada())
-                # with open("audio_file.wav", "wb") as file:
                 desicion = ""
-                # print(predicion)
                 if(predicion == 0):
                     desicion = "Empezar"
                 elif(predicion == 1):
@@ -57,7 +48,7 @@ def start_recognizer2():
                 elif(predicion == 2):
                     desicion = "Leprechaun"
                 elif(predicion == 3):
-                    desicion = "Más"
+                    desicion = "Mas"
                 elif(predicion == 4):
                     desicion = "Menos"
                 elif(predicion == 5):
@@ -73,7 +64,7 @@ def start_recognizer2():
                 with open('json_data.json', 'w') as outfile:
                     outfile.write(json_string)
                 print("-----------------------------------------------")
-                time.sleep(2)
+                time.sleep(1)
             except Exception as e:
                 print(f"Excepcion: {str(e)}")
 
@@ -100,10 +91,8 @@ class App:
         self.i = 0
 
         proceso1 = Process(target=start_recognizer2)
-        # proceso2 = Process(target=leerJSON,args=(self.ultima_accion,))
         proceso1.start()
-        # proceso2.start()
-        # proceso1.join()
+
 
     def load_images(self):
         # Obtenemos el path actual del archivo main.py
@@ -171,10 +160,10 @@ class App:
                         print("EMPEZAR")
                     elif(accion == "Menos"):
                         self.tetris.tetromino.move("left")
-                    elif(accion == "Más"):
+                    elif(accion == "Mas"):
                         self.tetris.tetromino.move("right")
-                    elif(accion == "Soltar"):
-                        print("SOLTAR")
+                    elif(accion == "Leprechaun"):
+                        print("Leprechaun")
                         self.tetris.speed_up = True
                     elif(accion == "Girar"):
                         print("GIRAR")
