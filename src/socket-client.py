@@ -1,7 +1,7 @@
 import socket
 
 mi_socket = socket.socket()
-mi_socket.connect(("localhost",8000))
+mi_socket.connect(("localhost",8001))
 # mi_socket.send("Hola desde el cliente")
 # recibe 1024 bits
 
