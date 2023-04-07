@@ -42,3 +42,6 @@ FONT_PATH ="assets/font/Montserrat-Bold.ttf"
 
 
 NEXT_POS_OFFSET = vec(FIELD_W*1.6,FIELD_H*0.45)
+
+
+SERVER_PORT = 8001
