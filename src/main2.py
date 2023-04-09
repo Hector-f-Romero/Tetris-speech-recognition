@@ -6,16 +6,15 @@ import pathlib
 import time
 import joblib
 import pygame as pg
-import json
 import socket
 
 from preprocesamiento import entenderAudio
 from multiprocessing import Process,Pool,Queue,Value
 
-
-from Observer import Observer
+from Variable_compartida import Variable_compartida
 from Server_socket import ServerSocket
 
+from sumar import sumarChimbita
 
 # * --------------------------------------------------
 # AJUSTES DEL SPEECH RECOGNITION
@@ -31,10 +30,11 @@ modelo_ruta = pathlib.Path(current_path / "assets" / "models" / "DiosPadre-DiosH
 modelo_entrenado = joblib.load(modelo_ruta)
 # * --------------------------------------------------
 
-def start_recognizer():
+def start_recognizer(getter):
     while True:
         with m as source:
             try:
+                print(f"EN START_RECOGNIZER APARECE EL VALOR DE {getter()} 👻" )
                 print("Hable")
                 audio = r.listen(source,phrase_time_limit=4) #,timeout=4
                 palabra_predictor = entenderAudio(audio)
@@ -61,7 +61,7 @@ def start_recognizer():
                 # recibe 1024 bits
                 mi_socket.send(desicion.encode())
                 # print(respuesta.decode())
-                # print(respuesta)
+                app.saludar()
                 mi_socket.close()
                 # print(desicion)
                 time.sleep(3)
@@ -69,59 +69,10 @@ def start_recognizer():
                 print(f"Excepcion: {str(e)}")
 
 
-# def server_socket():
 
-#     # Genera el socket del servidor con los valores por defecto
-#     socket_server = socket.socket()
 
-#     socket_server.bind(("localhost",8001))
-#     socket_server.listen(5)
-
-#     print("Servidor configurado 👻")
-#     while True:
-#         clientConnected,addr = socket_server.accept()
-#         print(f"Conexión establecida con {addr}")
-#         respuesta = clientConnected.recv(1024)
-#         print(respuesta.decode())
-#         clientConnected.close()
-
-# def start_recognizer():
-#     with m as source:
-#         try:
-#             print("Hable")
-#             audio = r.listen(source,phrase_time_limit=4) #,timeout=4
-#             palabra_predictor = entenderAudio(audio)
-#             predicion, = modelo_entrenado.predict(palabra_predictor)
-#             # y_prob = modelo_entrenado.predict_proba(palabra_predictor)
-#             if(predicion == 0):
-#                 desicion = "Empezar"
-#             elif(predicion == 1):
-#                 desicion = "Girar"
-#             elif(predicion == 2):
-#                 desicion = "Leprechaun"
-#             elif(predicion == 3):
-#                 desicion = "Mas"
-#                 print("DIJO MÁS SAPO HPTA")
-#                 # pg.event.post(pg.K_RIGHT)
-#             elif(predicion == 4):
-#                 desicion = "Menos"
-#             else:
-#                 desicion = ""
-#             # return desicion
-#         except Exception as e:
-#             print(f"Excepcion: {str(e)}")
-
-# def config_socket_server(self):
-#     print("Servidor configurado")
-    
-#     conexion,addr = self.socket_server.accept()
-#     print(f"Conexión establecida con {addr}")
-#     mensaje = "Hola desde el servidor."
-#     conexion.send(mensaje.encode())
-#     conexion.close()
-
-class App(Observer):
-    def __init__(self):
+class App():
+    def __init__(self,valor_compartido):
         pg.init()
         pg.display.set_caption("Tetris - PDSA")
         self.screen = pg.display.set_mode(WIN_RES)    #Inicializa la ventana o pantalla a mostrar
@@ -129,34 +80,24 @@ class App(Observer):
         self.set_timer()
         self.images = self.load_images()
         self.tetris = Tetris(self)
-        self.limpiarJSON()
         self.text = Text(self)
         self.ultima_accion = {}
-
-
-        self.miTestSocketServer = ServerSocket("test1",8001)
+       
+        # self.socket_py = socket.socket()
+        # self.socket_py.connect(("localhost",8001))
+        self.mi_variable =valor_compartido
         # print(self)
-        self.miTestSocketServer.attach(self)
+        # self.miTestSocketServer.attach(self)
 
-        proceso2 = Process(target=self.miTestSocketServer.start_socket_server)
-        proceso2.start()
+    def get_mi_variable(self):
+        return self.mi_variable
 
-
-
-
-
+    def set_mi_Variable(self,nuevo_valor):
+        self.mi_variable = nuevo_valor
 
 
-
-
-        # self.socket_server = socket.socket()
-        # self.socket_server.bind(("localhost",SERVER_PORT))
-        # self.socket_server.listen(5)
-        # 
-
-    def update(self):
-        print("Se han actualizado los cambios")
-        
+    def saludar(self):
+        print("makiavelico")  
 
     def load_images(self):
         # Obtenemos el path actual del archivo main.py
@@ -185,7 +126,7 @@ class App(Observer):
         # time.set_timer(): crea repetidamente un evento en la cola de eventos. El primer parámetro es el evento y el segundo los milisegundos con los cuales aparecerá cada vez en la cola de eventos.
         pg.time.set_timer(self.user_event,ANIM_TIME_INTERVAL)
         pg.time.set_timer(self.fast_user_event,FAST_ANIM_TIME_INTERVAL)
-        # pg.time.set_timer(self.escuchar_event,4000)
+        pg.time.set_timer(self.escuchar_event,4000)
         # pg.time.set_timer(self.leer_event,3500)
 
 
@@ -194,6 +135,8 @@ class App(Observer):
         self.clock.tick(FPS) # Actualiza el objeto "clock"
         # print(get_shared_variable())
 
+    def hola(self):
+        print("HOLA BONITO")
 
     def draw(self):
         self.screen.fill(color=BG_COLOR) # Agregamos un color azul a la pantalla
@@ -216,11 +159,20 @@ class App(Observer):
                 pg.quit() # Desinicializa (termina) todos los módulos de Pygame
                 sys.exit()
             elif event.type == self.escuchar_event:
+                
+                # a = self.get_mi_variable()
+                # print(a)
+
+                # b = a+1;
+                # self.set_mi_Variable(b)
+                # print(f"Valor después de sumar: {b}")
+                print(f"DENTRO DE PYGAME, EL VALOR DE MI_VARIABLE ES: {self.mi_variable.getValue()}")
+                pass
                 # x =Value('i', 8)
                 # proceso1 = Process(target=start_recognizer,args=(self.q,))
                 # proceso1 = Process(target=start_recognizer)
                 # proceso1.start()
-                print("Escuchando.")
+                # print(f"En pygame: {mi_variable.getValue()}")
                 # print("EN")
                 # proceso1.join()
                 # print("Acabó el proceso")
@@ -261,24 +213,9 @@ class App(Observer):
             elif event.type == self.fast_user_event:
                 self.fast_anim_trigger= True
        
-    def limpiarJSON(self):
-        # Abre el archivo en modo escritura
-        with open('json_data.json', 'w') as archivo:
-            # Utiliza la función truncate() para sobrescribir el contenido del archivo
-            archivo.truncate()
 
-        # Crea un diccionario vacío en Python
-        data = {}
-
-        # Agrega el diccionario vacío al archivo JSON
-        with open('json_data.json', 'w') as archivo:
-            json.dump({}, archivo)
-                
-    
     def run(self):
-    
-        proceso1 = Process(target=start_recognizer)
-        # proceso1.start()
+        
         
         while True:
             self.check_events();
@@ -291,9 +228,22 @@ class App(Observer):
 # Ejecuta el archivo "main.py" principal como __main__ e inicializa el aplicativo.
 # Evita que se ejecuten partes del código cuando se importan otros módulos en un mismo archivo.
 if __name__ == "__main__":
-    app = App()
-    # miTestSocketServer = ServerSocket("test1",8001)
+    mi_variable_definitiva = Variable_compartida(3)
+    print(mi_variable_definitiva.getValue())
+    app = App(valor_compartido=mi_variable_definitiva)
 
+    # app = App()
+    proceso3 = Process(target=sumarChimbita,args=(mi_variable_definitiva.getValue,mi_variable_definitiva.setValue))
+    proceso3.start()
+
+    proceso1 = Process(target=start_recognizer,args=(mi_variable_definitiva.getValue,))
+    proceso1.start()
+    # miTestSocketServer = ServerSocket("test1",8001)
+    # proceso2 = Process(target=miTestSocketServer.start_socket_server,args=(app.set_mi_Variable))
+    # proceso2.start()
+    
+    
+    # miTestSocketServer = ServerSocket("test1",8001)
     # miTestSocketServer.attach(app)
 
     # proceso2 = Process(target=miTestSocketServer.start_socket_server)
