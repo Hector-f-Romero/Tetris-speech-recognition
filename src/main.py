@@ -7,8 +7,10 @@ import time
 import joblib
 import pygame as pg
 import json
+import tensorflow as tf
 
-from preprocesamiento import entenderAudio
+
+from preprocesamientoConv import entenderAudio
 from multiprocessing import Process, Pool, Queue, Value
 
 # * --------------------------------------------------
@@ -20,10 +22,11 @@ m = sr.Microphone(0, sample_rate=44100)
 # Obtenemos el path actual del archivo main.py
 current_path = pathlib.Path(__file__).parent
 modelo_ruta = pathlib.Path(current_path / "assets" /
-                           "models" / "ModeloMakia1.joblib")
+                           "models" / "Nika.h5")
 
 # Se carga el modelo de red neuronal entrenado.
-modelo_entrenado = joblib.load(modelo_ruta)
+modelo_entrenado = tf.keras.models.load_model(modelo_ruta)
+
 # * --------------------------------------------------
 
 
@@ -36,26 +39,26 @@ def start_recognizer(q):
                 # ,timeout=4,phrase_time_limit=5
                 audio = r.listen(source, phrase_time_limit=3)
                 palabra_predictor = entenderAudio(audio)
-                predicion, = modelo_entrenado.predict(palabra_predictor)
-                y_prob = modelo_entrenado.predict_proba(palabra_predictor)
-                print(predicion)
-                print(y_prob)
+                predicion = modelo_entrenado.predict(
+                    palabra_predictor).argmax()
+                # y_prob = modelo_entrenado.predict_proba(palabra_predictor)
+                # print(predicion)
                 desicion = ""
-                if (predicion == 1):
+                if (predicion == 0):
                     desicion = "Empezar"
-                elif (predicion == 2):
+                elif (predicion == 1):
                     desicion = "Girar"
-                elif (predicion == 3):
+                elif (predicion == 2):
                     desicion = "Leprechaun"
-                elif (predicion == 4):
+                elif (predicion == 3):
                     desicion = "Mas"
-                elif (predicion == 5):
+                elif (predicion == 4):
                     desicion = "Menos"
                 else:
                     desicion = ""
-
-                q.put(desicion, block=False)
-
+                realizado = False
+                q.put((desicion, realizado), block=False)
+                # print("Se envió la palabra detectada a Pygame")
                 time.sleep(1)
             except Exception as e:
                 print(f"Excepcion: {str(e)}")
@@ -145,21 +148,39 @@ class App:
                     if (self.my_queue.empty()):
                         print("La cola está vacía.")
                         return
-                    accion = self.my_queue.get(block=False)
-                    print(accion)
+                    accion, realizado = self.my_queue.get(block=False)
+                    # print(accion)
+                    # print(".......")
+                    # print(realizado)
+                    # print("---------------")
+                    # print(accion)
+                    if (realizado):
+                        print("Ya se realizó la acción")
+                        return
+
                     if (accion == "Empezar"):
                         print("EMPEZAR")
+                        realizado = True
+
                     elif (accion == "Menos"):
                         self.tetris.tetromino.move("left")
+                        realizado = True
+
                     elif (accion == "Mas"):
                         self.tetris.tetromino.move("right")
                     elif (accion == "Leprechaun"):
-                        print("Leprechaun")
+                        realizado = True
+                        self.my_queue.put((accion, realizado), block=False)
+                        # print("Leprechaun")
                         self.tetris.speed_up = True
                     elif (accion == "Girar"):
-                        print("GIRAR")
+                        realizado = True
+                        self.my_queue.put((accion, realizado), block=False)
+                        # print("GIRAR")
                         self.tetris.tetromino.rotate()
-                    print("Ya escogió la acción")
+                    else:
+                        print("No se detectó la acción")
+                    # print("Ya escogió la acción")
                 except Exception as e:
                     print(e)
 
