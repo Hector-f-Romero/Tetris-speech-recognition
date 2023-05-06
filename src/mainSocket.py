@@ -3,65 +3,28 @@ from settings import *
 from tetris import Tetris, Text
 import sys
 import pathlib
-import time
-import joblib
 import pygame as pg
 import json
-import tensorflow as tf
-
+import socket
 
 from preprocesamientoConv import entenderAudio
 from multiprocessing import Process, Pool, Queue, Value
 
-# * --------------------------------------------------
-# AJUSTES DEL SPEECH RECOGNITION
-r = sr.Recognizer()
-r.energy_threshold = 4000
-m = sr.Microphone(0, sample_rate=44100)
 
-# Obtenemos el path actual del archivo main.py
-current_path = pathlib.Path(__file__).parent
-modelo_ruta = pathlib.Path(current_path / "assets" /
-                           "models" / "Nika.h5")
+def socketConfig(q):
+    my_socket = socket.socket()
+    my_socket.bind(("localhost", 8000))
+    my_socket.listen(5)
+    print("Socket configurado 👻")
+    try:
+        while True:
+            clientConnected, addr = my_socket.accept()
+            respuesta = clientConnected.recv(1024)
+            # print(respuesta.decode())
+            q.put(respuesta.decode(), block=False)
 
-# Se carga el modelo de red neuronal entrenado.
-modelo_entrenado = tf.keras.models.load_model(modelo_ruta)
-
-# * --------------------------------------------------
-
-
-def start_recognizer(q):
-    while True:
-        with m as source:
-            try:
-                print("Hable")
-                # r.adjust_for_ambient_noise(source)
-                # ,timeout=4,phrase_time_limit=5
-                audio = r.listen(source, phrase_time_limit=3)
-                palabra_predictor = entenderAudio(audio)
-                predicion = modelo_entrenado.predict(
-                    palabra_predictor).argmax()
-                # y_prob = modelo_entrenado.predict_proba(palabra_predictor)
-                # print(predicion)
-                desicion = ""
-                if (predicion == 0):
-                    desicion = "Empezar"
-                elif (predicion == 1):
-                    desicion = "Girar"
-                elif (predicion == 2):
-                    desicion = "Leprechaun"
-                elif (predicion == 3):
-                    desicion = "Mas"
-                elif (predicion == 4):
-                    desicion = "Menos"
-                else:
-                    desicion = ""
-                realizado = False
-                q.put((desicion, realizado), block=False)
-                # print("Se envió la palabra detectada a Pygame")
-                time.sleep(1)
-            except Exception as e:
-                print(f"Excepcion: {str(e)}")
+    except Exception:
+        print('interrupted!')
 
 
 class App:
@@ -78,8 +41,8 @@ class App:
         self.ultima_accion = {}
         self.my_queue = Queue()
 
-        proceso1 = Process(target=start_recognizer, args=(self.my_queue,))
-        proceso1.start()
+        proceso2 = Process(target=socketConfig, args=(self.my_queue,))
+        proceso2.start()
 
     def load_images(self):
         # Obtenemos el path actual del archivo main.py
@@ -107,10 +70,10 @@ class App:
 
         self.anim_trigger = False
         self.fast_anim_trigger = False
-        # time.set_timer(): crea repetidamente un evento en la cola de eventos. El primer parámetro es el evento y el segundo los milisegundos con los cuales aparecerá cada vez en la cola de eventos.
+        # time.set_timer(): crea repetidamente un evento en la cola de eventos. El primer parámetro es el evento y el segundo los milisegundos con los cuales aparecerá cada     vez en la cola de eventos.
         pg.time.set_timer(self.user_event, ANIM_TIME_INTERVAL)
         pg.time.set_timer(self.fast_user_event, FAST_ANIM_TIME_INTERVAL)
-        pg.time.set_timer(self.escuchar_event, 4000)
+        pg.time.set_timer(self.escuchar_event, 100)
 
     def update(self):
         self.tetris.update()
@@ -145,42 +108,31 @@ class App:
                 sys.exit()
             elif event.type == self.escuchar_event:
                 try:
+                    # pass
                     if (self.my_queue.empty()):
-                        print("La cola está vacía.")
+                        # print("La cola está vacía.")
                         return
-                    accion, realizado = self.my_queue.get(block=False)
-                    # print(accion)
-                    # print(".......")
-                    # print(realizado)
-                    # print("---------------")
-                    # print(accion)
-                    if (realizado):
-                        print("Ya se realizó la acción")
-                        return
+
+                    accion = self.my_queue.get(block=False)
+                    print(accion)
 
                     if (accion == "Empezar"):
                         print("EMPEZAR")
-                        realizado = True
-
                     elif (accion == "Menos"):
                         self.tetris.tetromino.move("left")
-                        realizado = True
-
                     elif (accion == "Mas"):
                         self.tetris.tetromino.move("right")
+
                     elif (accion == "Leprechaun"):
-                        realizado = True
-                        self.my_queue.put((accion, realizado), block=False)
-                        # print("Leprechaun")
+
                         self.tetris.speed_up = True
+
                     elif (accion == "Girar"):
-                        realizado = True
-                        self.my_queue.put((accion, realizado), block=False)
-                        # print("GIRAR")
+
                         self.tetris.tetromino.rotate()
                     else:
                         print("No se detectó la acción")
-                    # print("Ya escogió la acción")
+
                 except Exception as e:
                     print(e)
 
@@ -196,7 +148,6 @@ class App:
             self.check_events()
             self.update()
             self.draw()
-            # print(self.accion.accion_tomada)
 
 
 # Ejecuta el archivo "main.py" principal como __main__ e inicializa el aplicativo.

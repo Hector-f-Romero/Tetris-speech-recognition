@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+/src/assets/models/Nika_Cenit.h5
+/src/assets/models/Nika.h5
