@@ -117,7 +117,8 @@ class App:
                     print(accion)
 
                     if (accion == "Empezar"):
-                        print("EMPEZAR")
+                        # print("EMPEZAR")
+                        pass
                     elif (accion == "Menos"):
                         self.tetris.tetromino.move("left")
                     elif (accion == "Mas"):
