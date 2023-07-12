@@ -6,22 +6,15 @@ import time
 
 from preprocesamientoConv import entenderAudio
 
+from model import gonodactylus_simithii
+
 # * --------------------------------------------------
 # AJUSTES DEL SPEECH RECOGNITION
 r = sr.Recognizer()
 r.energy_threshold = 4000
 m = sr.Microphone(0, sample_rate=44100)
 
-# Obtenemos el path actual del archivo main.py
-current_path = pathlib.Path(__file__).parent
-modelo_ruta = pathlib.Path(current_path / "assets" /
-                           "models" / "Nika_Cenit.h5")
-
-# Se carga el modelo de red neuronal entrenado.
-modelo_entrenado = tf.keras.models.load_model(modelo_ruta)
-
 # * --------------------------------------------------
-
 
 def start_recognizer():
     while True:
@@ -32,7 +25,7 @@ def start_recognizer():
                 print("Hable")
                 audio = r.listen(source, phrase_time_limit=3)
                 palabra_predictor = entenderAudio(audio)
-                predicion = modelo_entrenado.predict(
+                predicion = gonodactylus_simithii.predict(
                     palabra_predictor, verbose=0).argmax()
                 desicion = ""
                 if (predicion == 0):
